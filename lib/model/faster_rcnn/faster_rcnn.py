@@ -40,7 +40,7 @@ class _fasterRCNN(nn.Module):
         self.RCNN_roi_pool = ROIPool((cfg.POOLING_SIZE, cfg.POOLING_SIZE), 1.0/16.0)
         self.RCNN_roi_align = ROIAlign((cfg.POOLING_SIZE, cfg.POOLING_SIZE), 1.0/16.0, 0)
 
-    def forward(self, im_data, im_info, gt_boxes, num_boxes):
+    def forward(self, im_data, im_info, gt_boxes, num_boxes, proposal_boxes=None):
         batch_size = im_data.size(0)
 
         im_info = im_info.data
@@ -52,6 +52,7 @@ class _fasterRCNN(nn.Module):
 
         # feed base feature map tp RPN to obtain rois
         rois, rpn_loss_cls, rpn_loss_bbox = self.RCNN_rpn(base_feat, im_info, gt_boxes, num_boxes)
+
 
         # if it is training phrase, then use ground trubut bboxes for refining
         if self.training:
@@ -69,10 +70,16 @@ class _fasterRCNN(nn.Module):
             rois_outside_ws = None
             rpn_loss_cls = 0
             rpn_loss_bbox = 0
+  
+        if proposal_boxes is not None:
+            rois = torch.cat((rois[0], proposal_boxes), dim=0)
+            rois = rois.unsqueeze(0)
 
         rois = Variable(rois)
+            
+  
         # do roi pooling based on predicted rois
-
+        
         if cfg.POOLING_MODE == 'align':
             pooled_feat = self.RCNN_roi_align(base_feat, rois.view(-1, 5))
         elif cfg.POOLING_MODE == 'pool':
@@ -106,6 +113,7 @@ class _fasterRCNN(nn.Module):
 
         cls_prob = cls_prob.view(batch_size, rois.size(1), -1)
         bbox_pred = bbox_pred.view(batch_size, rois.size(1), -1)
+
 
         return rois, cls_prob, bbox_pred, rpn_loss_cls, rpn_loss_bbox, RCNN_loss_cls, RCNN_loss_bbox, rois_label
 

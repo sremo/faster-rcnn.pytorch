@@ -72,8 +72,13 @@ class _fasterRCNN(nn.Module):
             rpn_loss_bbox = 0
   
         if proposal_boxes is not None:
-            rois = torch.cat((rois[0], proposal_boxes), dim=0)
+            proposal_boxes = proposal_boxes.to('cuda:0')
+            #for r in rois[0]:
+            #    print(r)
+            # print("rois:", rois)
+            rois = torch.cat((proposal_boxes, rois[0]), dim=0)
             rois = rois.unsqueeze(0)
+            # print("rois_after:",rois)
 
         rois = Variable(rois)
             

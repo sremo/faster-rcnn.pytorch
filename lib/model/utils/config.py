@@ -188,7 +188,7 @@ __C.TEST.HAS_RPN = False
 __C.TEST.PROPOSAL_METHOD = 'gt'
 
 ## NMS threshold used on RPN proposals
-__C.TEST.RPN_NMS_THRESH = 0.3
+__C.TEST.RPN_NMS_THRESH = 0.1
 ## Number of top scoring boxes to keep before apply NMS to RPN proposals
 __C.TEST.RPN_PRE_NMS_TOP_N = 6000
 

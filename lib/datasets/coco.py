@@ -35,8 +35,10 @@ class coco(imdb):
     self._image_set = image_set
     self._data_path = osp.join(cfg.DATA_DIR, 'coco')
     # load COCO API, classes, class <-> id mappings
+    print('loading annotations for coco: ',self._get_ann_file())
     self._COCO = COCO(self._get_ann_file())
     cats = self._COCO.loadCats(self._COCO.getCatIds())
+    print('categories: ',cats)
     self._classes = tuple(['__background__'] + [c['name'] for c in cats])
     self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))
     self._class_to_coco_cat_id = dict(list(zip([c['name'] for c in cats],
@@ -68,8 +70,11 @@ class coco(imdb):
   def _get_ann_file(self):
     prefix = 'instances' if self._image_set.find('test') == -1 \
       else 'image_info'
-    return osp.join(self._data_path, 'annotations',
+    
+    ann = osp.join(self._data_path, 'annotations',
                     prefix + '_' + self._image_set + self._year + '.json')
+    
+    return ann
 
   def _load_image_set_index(self):
     """
@@ -199,6 +204,7 @@ class coco(imdb):
       boxes = self.roidb[i]['boxes'].copy()
       oldx1 = boxes[:, 0].copy()
       oldx2 = boxes[:, 2].copy()
+    
       boxes[:, 0] = widths[i] - oldx2 - 1
       boxes[:, 2] = widths[i] - oldx1 - 1
       assert (boxes[:, 2] >= boxes[:, 0]).all()

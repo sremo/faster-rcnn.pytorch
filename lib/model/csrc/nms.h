@@ -10,7 +10,7 @@
 at::Tensor nms(const at::Tensor& dets,
                const at::Tensor& scores,
                const float threshold) {
-
+  /*
   if (dets.type().is_cuda()) {
 #ifdef WITH_CUDA
     // TODO raise error if not compiled with CUDA
@@ -22,6 +22,7 @@ at::Tensor nms(const at::Tensor& dets,
     AT_ERROR("Not compiled with GPU support");
 #endif
   }
+  */
 
   at::Tensor result = nms_cpu(dets, scores, threshold);
   return result;
